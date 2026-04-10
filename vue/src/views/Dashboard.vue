@@ -13,9 +13,47 @@
         </el-card>
       </el-col>
     </el-row>
+    <el-row :gutter="20" style="margin-top: 20px">
+      <el-col :span="6" v-for="item in statCards" :key="item.title">
+        <el-card class="box-card">
+          <div slot="header" class="clearfix">{{ item.title }}</div>
+          <div class="text item">
+            <span class="text">{{ item.data }}</span>
+          </div>
+        </el-card>
+      </el-col>
+    </el-row>
     <div id="myTimer" style="margin-left: 15px;font-weight: 550;"></div>
-    <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
-    <div id="main" style="margin-left: 5px"></div>
+    <el-row :gutter="20" style="margin-top: 20px">
+      <el-col :span="12">
+        <el-card class="box-card">
+          <template #header>
+            <div class="clearfix">
+              <span>热门借阅图书 TOP10</span>
+            </div>
+          </template>
+          <el-table :data="topBooks" style="width: 100%">
+            <el-table-column prop="name" label="书名" />
+            <el-table-column prop="author" label="作者" />
+            <el-table-column prop="borrownum" label="借阅次数" />
+          </el-table>
+        </el-card>
+      </el-col>
+      <el-col :span="12">
+        <el-card class="box-card">
+          <template #header>
+            <div class="clearfix">
+              <span>用户借阅次数 TOP10</span>
+            </div>
+          </template>
+          <el-table :data="topUsers" style="width: 100%">
+            <el-table-column prop="username" label="用户名" />
+            <el-table-column prop="lendCount" label="借阅次数" />
+          </el-table>
+        </el-card>
+      </el-col>
+    </el-row>
+    <div id="main" style="margin-left: 5px; margin-top: 20px"></div>
   </div>
 </template>
 
@@ -28,49 +66,81 @@ export default {
   data() {
     return {
       cards: [
-        { title: '已借阅', data: 100, icon: '#iconlend-record-pro' },
-        { title: '总访问', data: 100, icon: '#iconvisit'   },
-        { title: '图书数', data: 100, icon: '#iconbook-pro' },
-        { title: '用户数', data: 1000, icon: '#iconpopulation' }
+        { title: '已借阅', data: 0, icon: '#iconlend-record-pro' },
+        { title: '总访问', data: 0, icon: '#iconvisit'   },
+        { title: '图书数', data: 0, icon: '#iconbook-pro' },
+        { title: '用户数', data: 0, icon: '#iconpopulation' }
       ],
+      statCards: [
+        { title: '本月借阅', data: 0 },
+        { title: '本月归还', data: 0 },
+        { title: '总借阅', data: 0 },
+        { title: '总逾期', data: 0 }
+      ],
+      topBooks: [],
+      topUsers: [],
       data:{}
     }
   },
-  created() {
-
-  },
   mounted() {
     this.circleTimer()
-
-    request.get("/dashboard").then(res=>{
-      if(res.code == 0)
-      {
-
-        this.cards[0].data = res.data.lendRecordCount
-        this.cards[1].data = res.data.visitCount
-        this.cards[2].data = res.data.bookCount
-        this.cards[3].data = res.data.userCount
-
-      }
-      else
-      {
-        ElMessage.error(res.msg)
-      }
-
-
-      // 基于准备好的dom，初始化echarts实例
+    this.loadDashboard()
+    this.loadStatistics()
+    this.loadTopBooks()
+    this.loadTopUsers()
+  },
+  methods: {
+    loadDashboard() {
+      request.get("/dashboard").then(res=>{
+        if(res.code == 0)
+        {
+          this.cards[0].data = res.data.lendRecordCount
+          this.cards[1].data = res.data.visitCount
+          this.cards[2].data = res.data.bookCount
+          this.cards[3].data = res.data.userCount
+          this.initChart()
+        }
+        else
+        {
+          ElMessage.error(res.msg)
+        }
+      })
+    },
+    loadStatistics() {
+      request.get("/dashboard/statistics").then(res=>{
+        if(res.code == 0)
+        {
+          this.statCards[0].data = res.data.monthLend
+          this.statCards[1].data = res.data.monthReturn
+          this.statCards[2].data = res.data.totalLend
+          this.statCards[3].data = res.data.totalOverdue
+        }
+      })
+    },
+    loadTopBooks() {
+      request.get("/dashboard/topBooks?limit=10").then(res=>{
+        if(res.code == 0)
+        {
+          this.topBooks = res.data
+        }
+      })
+    },
+    loadTopUsers() {
+      request.get("/dashboard/topUsers?limit=10").then(res=>{
+        if(res.code == 0)
+        {
+          this.topUsers = res.data
+        }
+      })
+    },
+    initChart() {
       var myChart = echarts.init(document.getElementById('main'))
-    console.log(this.cards[0].data)
-      // 绘制图表
       myChart.setOption({
         title: {
-          text: '统计'
+          text: '系统统计'
         },
         tooltip: {
           trigger: 'axis'
-          // axisPointer: {
-          //   type: 'shadow' // 默认为直线，可选为：'line' | 'shadow'
-          // }
         },
         grid: {
           left: '3%',
@@ -94,22 +164,10 @@ export default {
             label: { show: true },
             barWidth: '25%',
             data: [
-              {
-                value: this.cards[0].data,
-                itemStyle: { color: '#5470c6' }
-              },
-              {
-                value: this.cards[1].data,
-                itemStyle: { color: '#91cc75' }
-              },
-              {
-                value: this.cards[2].data,
-                itemStyle: { color: '#fac858' }
-              },
-              {
-                value: this.cards[3].data,
-                itemStyle: { color: '#ee6666' }
-              }
+              { value: this.cards[0].data, itemStyle: { color: '#5470c6' } },
+              { value: this.cards[1].data, itemStyle: { color: '#91cc75' } },
+              { value: this.cards[2].data, itemStyle: { color: '#fac858' } },
+              { value: this.cards[3].data, itemStyle: { color: '#ee6666' } }
             ]
           }
         ]
@@ -117,9 +175,7 @@ export default {
       window.addEventListener('resize', () => {
         myChart.resize()
       })
-    })
-  },
-  methods: {
+    },
     circleTimer() {
       this.getTimer()
       setInterval(() => {

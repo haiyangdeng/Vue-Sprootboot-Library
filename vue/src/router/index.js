@@ -42,6 +42,16 @@ const routes = [
         path: 'bookwithuser',
         name: 'BookWithUser',
         component: () => import("@/views/BookWithUser")
+      },
+      {
+        path: 'category',
+        name: 'Category',
+        component: () => import("@/views/Category")
+      },
+      {
+        path: 'syslog',
+        name: 'SysLog',
+        component: () => import("@/views/SysLog")
       }
     ]
   },

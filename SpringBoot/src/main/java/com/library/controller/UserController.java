@@ -1,118 +1,119 @@
+// ============================================
+// 文件: com/library/controller/UserController.java
+// ============================================
 package com.library.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.library.LoginUser;
-import com.library.commom.Result;
-import com.library.entity.User;
-import com.library.mapper.UserMapper;
+import com.library.common.Result;
+import com.library.dto.LoginDTO;
+import com.library.dto.PasswordDTO;
+import com.library.dto.UserDTO;
+import com.library.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import com.library.utils.TokenUtils;
 
-
-import javax.annotation.Resource;
-import java.util.List;
-
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequestMapping("/user")
 public class UserController {
-    @Resource
-    UserMapper userMapper;
-    @PostMapping("/register")
-    public Result<?> register(@RequestBody User user){
-        User res = userMapper.selectOne(Wrappers.<User>lambdaQuery().eq(User::getUsername,user.getUsername()));
-        if(res != null)
-        {
-            return Result.error("-1","用户名已重复");
-        }
-        userMapper.insert(user);
-        return Result.success();
-    }
-    @CrossOrigin
+
+    @Autowired
+    private UserService userService;
+
+    /**
+     * 用户登录
+     */
     @PostMapping("/login")
-    public Result<?> login(@RequestBody User user){
-        User res = userMapper.selectOne(Wrappers.<User>lambdaQuery().eq(User::getUsername,user.getUsername()).eq(User::getPassword,user.getPassword()));
-        if(res == null)
-        {
-            return Result.error("-1","用户名或密码错误");
-        }
-        String token = TokenUtils.genToken(res);
-        res.setToken(token);
-        LoginUser loginuser = new LoginUser();
-        loginuser.addVisitCount();
-        return Result.success(res);
+    public Result<?> login(@RequestBody @Validated LoginDTO dto) {
+        return userService.login(dto);
     }
-    @PostMapping
-    public Result<?> save(@RequestBody User user){
-        if(user.getPassword() == null){
-            user.setPassword("abc123456");
-        }
-        userMapper.insert(user);
-        return Result.success();
+
+    /**
+     * 用户注册
+     */
+    @PostMapping("/register")
+    public Result<?> register(@RequestBody @Validated UserDTO dto) {
+        return userService.register(dto);
     }
-    @PutMapping("/password")
-    public  Result<?> update( @RequestParam Integer id,
-                              @RequestParam String password2){
-        UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.eq("id",id);
-        User user = new User();
-        user.setPassword(password2);
-        userMapper.update(user,updateWrapper);
-        return Result.success();
+
+    /**
+     * 获取当前登录用户信息
+     */
+    @GetMapping("/info")
+    public Result<?> getUserInfo(HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        return userService.getUserInfo(userId);
     }
-    @PutMapping
-    public  Result<?> password(@RequestBody User user){
-        userMapper.updateById(user);
-        return Result.success();
+
+    /**
+     * 修改个人信息
+     */
+    @PutMapping("/updateInfo")
+    public Result<?> updateInfo(@RequestBody @Validated UserDTO dto, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        dto.setId(userId);
+        return userService.updateUser(dto);
     }
-    @PostMapping("/deleteBatch")
-    public  Result<?> deleteBatch(@RequestBody List<Integer> ids){
-        userMapper.deleteBatchIds(ids);
-        return Result.success();
+
+    /**
+     * 修改密码
+     */
+    @PutMapping("/updatePwd")
+    public Result<?> updatePassword(@RequestBody @Validated PasswordDTO dto, HttpServletRequest request) {
+        Long userId = (Long) request.getAttribute("userId");
+        return userService.updatePassword(userId, dto);
     }
-    @DeleteMapping("/{id}")
-    public Result<?> delete(@PathVariable Long id){
-        userMapper.deleteById(id);
-        return Result.success();
+
+    // ====== 管理员接口 ======
+
+    /**
+     * 分页查询用户列表（管理员）
+     */
+    @GetMapping("/list")
+    @PreAuthorize("hasRole('ADMIN')")
+    public Result<?> getUserList(
+            @RequestParam(defaultValue = "1") Integer pageNum,
+            @RequestParam(defaultValue = "10") Integer pageSize,
+            @RequestParam(required = false) String username,
+            @RequestParam(required = false) String phone) {
+        return userService.getUserPage(pageNum, pageSize, username, phone);
     }
-    @GetMapping
-    public Result<?> findPage(@RequestParam(defaultValue = "1") Integer pageNum,
-                              @RequestParam(defaultValue = "10") Integer pageSize,
-                              @RequestParam(defaultValue = "") String search){
-        LambdaQueryWrapper<User> wrappers = Wrappers.<User>lambdaQuery();
-        if(StringUtils.isNotBlank(search)){
-            wrappers.like(User::getNickName,search);
-        }
-        wrappers.like(User::getRole,2);
-        Page<User> userPage =userMapper.selectPage(new Page<>(pageNum,pageSize), wrappers);
-        return Result.success(userPage);
+
+    /**
+     * 新增用户（管理员）
+     */
+    @PostMapping("/add")
+    @PreAuthorize("hasRole('ADMIN')")
+    public Result<?> addUser(@RequestBody @Validated UserDTO dto) {
+        return userService.addUser(dto);
     }
-    @GetMapping("/usersearch")
-    public Result<?> findPage2(@RequestParam(defaultValue = "1") Integer pageNum,
-                              @RequestParam(defaultValue = "10") Integer pageSize,
-                              @RequestParam(defaultValue = "") String search1,
-                               @RequestParam(defaultValue = "") String search2,
-                               @RequestParam(defaultValue = "") String search3,
-                               @RequestParam(defaultValue = "") String search4){
-        LambdaQueryWrapper<User> wrappers = Wrappers.<User>lambdaQuery();
-        if(StringUtils.isNotBlank(search1)){
-            wrappers.like(User::getId,search1);
-        }
-        if(StringUtils.isNotBlank(search2)){
-            wrappers.like(User::getNickName,search2);
-        }
-        if(StringUtils.isNotBlank(search3)){
-            wrappers.like(User::getPhone,search3);
-        }
-        if(StringUtils.isNotBlank(search4)){
-            wrappers.like(User::getAddress,search4);
-        }
-        wrappers.like(User::getRole,2);
-        Page<User> userPage =userMapper.selectPage(new Page<>(pageNum,pageSize), wrappers);
-        return Result.success(userPage);
+
+    /**
+     * 修改用户（管理员）
+     */
+    @PutMapping("/update")
+    @PreAuthorize("hasRole('ADMIN')")
+    public Result<?> updateUser(@RequestBody @Validated UserDTO dto) {
+        return userService.updateUser(dto);
+    }
+
+    /**
+     * 删除用户（管理员）
+     */
+    @DeleteMapping("/delete/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public Result<?> deleteUser(@PathVariable Long id) {
+        return userService.deleteUser(id);
+    }
+
+    /**
+     * 重置密码（管理员）
+     */
+    @PutMapping("/resetPwd/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public Result<?> resetPassword(@PathVariable Long id) {
+        return userService.resetPassword(id);
     }
 }

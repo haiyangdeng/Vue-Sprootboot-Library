@@ -1,9 +1,9 @@
 package com.library.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.library.entity.User;
+import com.library.entity.SysLog;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface UserMapper extends BaseMapper<User> {
+public interface SysLogMapper extends BaseMapper<SysLog> {
 }

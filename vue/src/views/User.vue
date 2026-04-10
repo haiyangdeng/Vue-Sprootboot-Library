@@ -55,6 +55,7 @@
       <el-table-column fixed="right" label="操作" >
         <template v-slot="scope">
           <el-button  size="mini" @click ="handleEdit(scope.row)">编辑</el-button>
+          <el-button  size="mini" type="warning" @click ="handleResetPassword(scope.row.id)">重置密码</el-button>
           <el-popconfirm title="确认删除?" @confirm="handleDelete(scope.row.id)">
             <template #reference>
               <el-button type="danger" size="mini" >删除</el-button>
@@ -172,6 +173,15 @@ export default {
         else
           ElMessage.error(res.msg)
         this.load()
+      })
+    },
+    handleResetPassword(id){
+      request.put("/user/resetPassword/" + id ).then(res =>{
+        if(res.code == 0 ){
+          ElMessage.success("密码已重置为: abc123456")
+        }
+        else
+          ElMessage.error(res.msg)
       })
     },
 

@@ -1,59 +1,39 @@
-package com.library.commom;
+package com.library.common;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Result<T> {
-    private String code;
+    private Integer code;
     private String msg;
     private T data;
 
-    public String getCode() {
-        return code;
+    // 成功（无数据）
+    public static <T> Result<T> success() {
+        return new Result<>(200, "操作成功", null);
     }
 
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public String getMsg() {
-        return msg;
-    }
-
-    public void setMsg(String msg) {
-        this.msg = msg;
-    }
-
-    public T getData() {
-        return data;
-    }
-
-    public void setData(T data) {
-        this.data = data;
-    }
-
-    public Result() {
-    }
-
-    public Result(T data) {
-        this.data = data;
-    }
-
-    public static Result success() {
-        Result result = new Result<>();
-        result.setCode("0");
-        result.setMsg("成功");
-        return result;
-    }
-
+    // 成功（有数据）
     public static <T> Result<T> success(T data) {
-        Result<T> result = new Result<>(data);
-        result.setCode("0");
-        result.setMsg("成功");
-        return result;
+        return new Result<>(200, "操作成功", data);
     }
 
-    public static Result error(String code, String msg) {
-        Result result = new Result();
-        result.setCode(code);
-        result.setMsg(msg);
-        return result;
+    // 成功（自定义消息）
+    public static <T> Result<T> success(String msg, T data) {
+        return new Result<>(200, msg, data);
+    }
+
+    // 失败
+    public static <T> Result<T> error(String msg) {
+        return new Result<>(400, msg, null);
+    }
+
+    // 失败（自定义错误码）
+    public static <T> Result<T> error(Integer code, String msg) {
+        return new Result<>(code, msg, null);
     }
 }

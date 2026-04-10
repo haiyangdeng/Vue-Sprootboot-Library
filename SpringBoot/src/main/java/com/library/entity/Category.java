@@ -1,31 +1,19 @@
 package com.library.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import java.io.Serializable;
 import java.util.Date;
 
 @Data
-@TableName("sys_user")
-public class User implements Serializable {
+@TableName("sys_category")
+public class Category implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    private String username;
-
-    @JsonIgnore
-    private String password;
-
-    private String role;
-
-    private String phone;
-
-    private String email;
-
-    private String address;
+    private String name;
 
     @TableField(fill = FieldFill.INSERT)
     private Date createTime;
@@ -35,7 +23,7 @@ public class User implements Serializable {
 
     private String remark;
 
-    // 非数据库字段，用于接收前端传参
+    // 非数据库字段：分类下的图书数量
     @TableField(exist = false)
-    private String token;
+    private Integer bookCount;
 }

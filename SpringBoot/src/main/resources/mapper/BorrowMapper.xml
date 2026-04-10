@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.library.mapper.BorrowMapper">
+
+    <resultMap id="BorrowResultMap" type="com.library.entity.Borrow">
+        <id column="id" property="id"/>
+        <result column="user_id" property="userId"/>
+        <result column="book_id" property="bookId"/>
+        <result column="borrow_time" property="borrowTime"/>
+        <result column="return_deadline" property="returnDeadline"/>
+        <result column="return_time" property="returnTime"/>
+        <result column="status" property="status"/>
+        <result column="overdue_days" property="overdueDays"/>
+        <result column="remark" property="remark"/>
+        <result column="username" property="username"/>
+        <result column="book_name" property="bookName"/>
+        <result column="author" property="author"/>
+    </resultMap>
+
+    <select id="selectBorrowPage" resultMap="BorrowResultMap">
+        SELECT br.*,
+        u.username as username,
+        b.name as book_name,
+        b.author as author
+        FROM sys_borrow br
+        LEFT JOIN sys_user u ON br.user_id = u.id
+        LEFT JOIN sys_book b ON br.book_id = b.id
+        <where>
+            <if test="userId != null">
+                AND br.user_id = #{userId}
+            </if>
+            <if test="bookId != null">
+                AND br.book_id = #{bookId}
+            </if>
+            <if test="status != null and status != ''">
+                AND br.status = #{status}
+            </if>
+        </where>
+        ORDER BY br.borrow_time DESC
+    </select>
+
+    <select id="selectBorrowStats" resultType="java.util.Map">
+        SELECT
+        <choose>
+            <when test="timeType == 'day'">
+                DATE_FORMAT(borrow_time, '%Y-%m-%d') as time_key,
+            </when>
+            <when test="timeType == 'week'">
+                DATE_FORMAT(borrow_time, '%Y-%u') as time_key,
+            </when>
+            <when test="timeType == 'month'">
+                DATE_FORMAT(borrow_time, '%Y-%m') as time_key,
+            </when>
+            <when test="timeType == 'year'">
+                DATE_FORMAT(borrow_time, '%Y') as time_key,
+            </when>
+            <otherwise>
+                DATE_FORMAT(borrow_time, '%Y-%m') as time_key,
+            </otherwise>
+        </choose>
+        COUNT(*) as total_borrow,
+        SUM(CASE WHEN status = 'returned' THEN 1 ELSE 0 END) as total_return,
+        SUM(CASE WHEN status = 'overdue' THEN 1 ELSE 0 END) as total_overdue
+        FROM sys_borrow
+        <where>
+            <if test="startTime != null and startTime != ''">
+                AND borrow_time >= #{startTime}
+            </if>
+            <if test="endTime != null and endTime != ''">
+                AND borrow_time &lt;= #{endTime}
+            </if>
+        </where>
+        GROUP BY time_key
+        ORDER BY time_key
+    </select>
+
+</mapper>

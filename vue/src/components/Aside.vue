@@ -49,6 +49,12 @@
       </svg>
       <span>书籍管理</span>
     </el-menu-item>
+    <el-menu-item index="/category" v-if="user.role == 1">
+      <svg class="icon" aria-hidden="true">
+        <use xlink:href="#icon-category"></use>
+      </svg>
+      <span>分类管理</span>
+    </el-menu-item>
     <el-menu-item index="/book" v-if="user.role == 2">
       <svg class="icon" aria-hidden="true">
         <use xlink:href="#iconbook "></use>
@@ -70,6 +76,12 @@
     <el-menu-item index="/bookwithuser" >
       <el-icon><grid /></el-icon>
       <span>借阅状态</span>
+    </el-menu-item>
+    <el-menu-item index="/syslog" v-if="user.role == 1">
+      <svg class="icon" aria-hidden="true">
+        <use xlink:href="#icon-log"></use>
+      </svg>
+      <span>操作日志</span>
     </el-menu-item>
   </el-menu>
 

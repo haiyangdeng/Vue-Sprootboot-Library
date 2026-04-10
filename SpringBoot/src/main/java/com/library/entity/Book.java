@@ -1,34 +1,44 @@
 package com.library.entity;
 
-
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
-
-
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
-@TableName("book")
 @Data
+@TableName("sys_book")
+public class Book implements Serializable {
+    private static final long serialVersionUID = 1L;
 
-public class Book {
+    @TableId(type = IdType.AUTO)
+    private Long id;
 
-    @TableId (type = IdType.AUTO)
-    private Integer id;
-    private String isbn;
     private String name;
-    private BigDecimal price;
+
     private String author;
-    private Integer borrownum;
+
     private String publisher;
-    @JsonFormat(locale="zh",timezone="GMT+8", pattern="yyyy-MM-dd")
+
+    private Date publishTime;
+
+    private BigDecimal price;
+
+    private Long categoryId;
+
+    private Integer stock;
+
+    private String description;
+
+    @TableField(fill = FieldFill.INSERT)
     private Date createTime;
-    private String status;
 
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private Date updateTime;
 
+    private String remark;
+
+    // 非数据库字段：分类名称
+    @TableField(exist = false)
+    private String categoryName;
 }

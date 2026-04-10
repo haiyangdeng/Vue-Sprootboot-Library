@@ -63,6 +63,7 @@
       <el-table-column prop="author" label="作者" />
       <el-table-column prop="publisher" label="出版社" />
       <el-table-column prop="createTime" label="出版时间" sortable/>
+      <el-table-column prop="stock" label="库存" sortable/>
       <el-table-column prop="status" label="状态">
         <template v-slot="scope">
           <el-tag v-if="scope.row.status == 0" type="warning">已借阅</el-tag>
@@ -77,7 +78,7 @@
               <el-button type="danger" size="mini" >删除</el-button>
             </template>
           </el-popconfirm>
-          <el-button  size="mini" @click ="handlelend(scope.row.id,scope.row.isbn,scope.row.name,scope.row.borrownum)" v-if="user.role == 2" :disabled="scope.row.status == 0">借阅</el-button>
+          <el-button  size="mini" @click ="handlelend(scope.row.id,scope.row.isbn,scope.row.name,scope.row.borrownum,scope.row.stock)" v-if="user.role == 2" :disabled="scope.row.stock <= 0">借阅</el-button>
           <el-popconfirm title="确认还书?" @confirm="handlereturn(scope.row.id,scope.row.isbn,scope.row.borrownum)" v-if="user.role == 2" :disabled="scope.row.status == 1">
             <template #reference>
               <el-button type="danger" size="mini" :disabled="(this.isbnArray.indexOf(scope.row.isbn)) == -1 ||scope.row.status == 1" >还书</el-button>
@@ -144,6 +145,9 @@
               <el-date-picker value-format="YYYY-MM-DD" type="date" style="width: 80%" clearable v-model="form.createTime" ></el-date-picker>
             </div>
           </el-form-item>
+          <el-form-item label="库存">
+            <el-input-number style="width: 80%" v-model="form.stock" :min="0"></el-input-number>
+          </el-form-item>
         </el-form>
         <template #footer>
       <span class="dialog-footer">
@@ -175,6 +179,9 @@
             <div>
               <el-date-picker value-format="YYYY-MM-DD" type="date" style="width: 80%" clearable v-model="form.createTime" ></el-date-picker>
             </div>
+          </el-form-item>
+          <el-form-item label="库存">
+            <el-input-number style="width: 80%" v-model="form.stock" :min="0"></el-input-number>
           </el-form-item>
         </el-form>
         <template #footer>
@@ -289,16 +296,9 @@ export default {
       })
     },
     handlereturn(id,isbn,bn){
-      // (this.isbnArray.indexOf(scope.row.isbn)) == -1
-      // for(let i=0; i<this.numOfOutDataBook; i++){
-      //   if(this.outDateBook[i].isbn == isbn){
-      //     this.numOfOutDataBook = this.numOfOutDataBook -1;
-      //     console.log("in handlereturn: " + this.numOfOutDataBook);
-      //     break;
-      //   }
-      // }
       this.form.status = "1"
       this.form.id = id
+      this.form.stock = this.form.stock + 1
       request.put("/book",this.form).then(res =>{
         console.log(res)
         if(res.code == 0){
@@ -359,7 +359,11 @@ export default {
       //   this.load()
       // })
     },
-    handlelend(id,isbn,name,bn){
+    handlelend(id,isbn,name,bn,stock){
+      if(stock <= 0){
+        ElMessage.warning("库存不足，无法借阅")
+        return;
+      }
       if(this.number ==5){
         ElMessage.warning("您不能再借阅更多的书籍了")
         return;
@@ -371,6 +375,7 @@ export default {
       this.form.status = "0"
       this.form.id = id
       this.form.borrownum = bn+1
+      this.form.stock = stock - 1
       console.log(bn)
       request.put("/book",this.form).then(res =>{
         console.log(res)
