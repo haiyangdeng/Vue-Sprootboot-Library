@@ -37,4 +37,17 @@
         ORDER BY b.create_time DESC
     </select>
 
+    <select id="selectHotBooks" resultType="com.library.vo.BookHotVO">
+        SELECT
+            b.id,
+            b.name,
+            b.author,
+            COUNT(br.id) AS borrowCount
+        FROM book b
+                 LEFT JOIN borrow br ON b.id = br.book_id
+        GROUP BY b.id
+        ORDER BY borrowCount DESC
+            LIMIT #{limit}
+    </select>
+
 </mapper>

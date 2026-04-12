@@ -12,7 +12,7 @@ public class LibraryApplication {
 		SpringApplication.run(LibraryApplication.class, args);
 		System.out.println("========================================");
 		System.out.println("  图书管理系统启动成功！");
-		System.out.println("  后端地址: http://localhost:9090/api");
+		System.out.println("  后端地址: http://localhost:8088/api");
 		System.out.println("========================================");
 	}
 }

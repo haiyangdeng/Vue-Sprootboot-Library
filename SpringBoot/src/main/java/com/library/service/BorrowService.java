@@ -12,6 +12,7 @@ import com.library.entity.User;
 import com.library.mapper.BookMapper;
 import com.library.mapper.BorrowMapper;
 import com.library.mapper.UserMapper;
+import com.library.vo.BookHotVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -148,7 +149,7 @@ public class BorrowService extends ServiceImpl<BorrowMapper, Borrow> {
      */
     public Result<?> getHotBooks(Integer topNum) {
         if (topNum == null || topNum <= 0) topNum = 10;
-        List<Map<String, Object>> hotBooks = bookMapper.selectHotBooks(topNum);
+        List<BookHotVO> hotBooks = bookMapper.selectHotBooks(topNum);
         return Result.success(hotBooks);
     }
 
