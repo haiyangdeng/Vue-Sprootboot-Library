@@ -1,6 +1,7 @@
 package com.library.controller;
 
 import com.library.common.Result;
+import com.library.common.annotation.Log;
 import com.library.dto.BookDTO;
 import com.library.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,8 +27,8 @@ public class BookController {
             @RequestParam(defaultValue = "10") Integer pageSize,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String author,
-            @RequestParam(required = false) Long categoryId) {
-        return bookService.getBookPage(pageNum, pageSize, name, author, categoryId);
+            @RequestParam(required = false) String isbn) {
+        return bookService.getBookPage(pageNum, pageSize, name, author, isbn);
     }
 
     /**
@@ -43,6 +44,7 @@ public class BookController {
      */
     @PostMapping("/add")
     @PreAuthorize("hasRole('ADMIN')")
+    @Log("新增图书")
     public Result<?> addBook(@RequestBody @Validated BookDTO dto) {
         return bookService.addBook(dto);
     }
@@ -52,6 +54,7 @@ public class BookController {
      */
     @PutMapping("/update")
     @PreAuthorize("hasRole('ADMIN')")
+    @Log("修改图书")
     public Result<?> updateBook(@RequestBody @Validated BookDTO dto) {
         return bookService.updateBook(dto);
     }
@@ -61,6 +64,7 @@ public class BookController {
      */
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    @Log("删除图书")
     public Result<?> deleteBook(@PathVariable Long id) {
         return bookService.deleteBook(id);
     }
@@ -70,6 +74,7 @@ public class BookController {
      */
     @DeleteMapping("/batchDelete")
     @PreAuthorize("hasRole('ADMIN')")
+    @Log("批量删除图书")
     public Result<?> batchDeleteBooks(@RequestBody List<Long> ids) {
         return bookService.batchDeleteBooks(ids);
     }

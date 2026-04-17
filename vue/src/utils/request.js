@@ -1,50 +1,69 @@
-import axios from 'axios'
-import router from "../router";
+import axios from 'axios';
+import router from '../router';
+import { useUserStore } from '@/stores/user';
+import { ElMessage } from 'element-plus';
 
 const request = axios.create({
     baseURL: '/api',
-    timeout: 5000
-})
+    timeout: 5000,
+});
 
 // request 拦截器
 // 可以自请求发送前对请求做一些处理
 // 比如统一加token，对请求参数统一加密
-request.interceptors.request.use(config => {
-    config.headers['Content-Type'] = 'application/json;charset=utf-8';
+request.interceptors.request.use(
+    (config) => {
+        config.headers['Content-Type'] = 'application/json;charset=utf-8';
+        const userStore = useUserStore();
+        const token = userStore.token;
 
-    // config.headers['token'] = user.token;  // 设置请求头
-    //取出sessionStorage里面缓存的用户信息
-    let userJson = sessionStorage.getItem("user")
-    if(!userJson)
-    {
-        router.push("/login")
-    }
-    return config
-}, error => {
-    return Promise.reject(error)
-});
+        if (token) {
+            config.headers['Authorization'] = token;
+        }
+
+        //取出sessionStorage里面缓存的用户信息
+        let userJson = sessionStorage.getItem('user');
+        if (!userJson) {
+            router.push('/login');
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    },
+);
 
 // response 拦截器
 // 可以在接口响应后统一处理结果
 request.interceptors.response.use(
-    response => {
+    (response) => {
         let res = response.data;
+        console.log(res, 'res');
+
         // 如果是返回的文件
         if (response.config.responseType === 'blob') {
-            return res
+            return res;
         }
         // 兼容服务端返回的字符串数据
         if (typeof res === 'string') {
-            res = res ? JSON.parse(res) : res
+            res = res ? JSON.parse(res) : res;
         }
         return res;
     },
-    error => {
-        console.log('err' + error) // for debug
-        return Promise.reject(error)
-    }
-)
+    (error) => {
+        console.log('err' + error, error.response); // for debug
 
+        if (error.response && error.response.status === 401) {
+            const res = error.response.data; // 获取后端返回的 JSON 数据
+            ElMessage({
+                message: res.msg || 'Token无效，请重新登录',
+                type: 'error',
+            });
+            sessionStorage.clear();
+            router.push('/login');
+        }
+        return Promise.reject(error);
+    },
+);
 
-export default request
-
+export default request;

@@ -1,7 +1,8 @@
 package com.library.controller;
 
 import com.library.common.Result;
-import com.library.entity.Category;
+import com.library.common.annotation.Log;
+import com.library.dto.CategoryDTO;
 import com.library.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,8 +19,8 @@ public class CategoryController {
      * 查询所有分类
      */
     @GetMapping("/list")
-    public Result<?> getCategoryList() {
-        return categoryService.getCategoryList();
+    public Result<?> getCategoryList(CategoryDTO queryDTO) {
+        return categoryService.getCategoryList(queryDTO);
     }
 
     /**
@@ -27,8 +28,9 @@ public class CategoryController {
      */
     @PostMapping("/add")
     @PreAuthorize("hasRole('ADMIN')")
-    public Result<?> addCategory(@RequestBody Category category) {
-        return categoryService.addCategory(category);
+    @Log("新增分类")
+    public Result<?> addCategory(@RequestBody CategoryDTO categoryDTO) {
+        return categoryService.addCategory(categoryDTO);
     }
 
     /**
@@ -36,8 +38,9 @@ public class CategoryController {
      */
     @PutMapping("/update")
     @PreAuthorize("hasRole('ADMIN')")
-    public Result<?> updateCategory(@RequestBody Category category) {
-        return categoryService.updateCategory(category);
+    @Log("修改分类")
+    public Result<?> updateCategory(@RequestBody CategoryDTO categoryDTO) {
+        return categoryService.updateCategory(categoryDTO);
     }
 
     /**
@@ -45,6 +48,7 @@ public class CategoryController {
      */
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    @Log("删除分类")
     public Result<?> deleteCategory(@PathVariable Long id) {
         return categoryService.deleteCategory(id);
     }

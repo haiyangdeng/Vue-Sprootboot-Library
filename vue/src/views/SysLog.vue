@@ -1,85 +1,92 @@
 <template>
-  <div class="home" style ="padding: 10px">
-    <div style="margin: 10px 0;">
-      <el-form inline="true" size="small">
-        <el-form-item label="用户名" >
-          <el-input v-model="search" placeholder="请输入用户名"  clearable>
-            <template #prefix><el-icon class="el-input__icon"><search/></el-icon></template>
-          </el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" style="margin-left: 1%" @click="load" size="mini">查询</el-button>
-        </el-form-item>
-        <el-form-item>
-          <el-button size="mini"  type="danger" @click="clear">重置</el-button>
-        </el-form-item>
-      </el-form>
+    <div class="container">
+        <div style="margin: 10px 0">
+            <el-form :inline="true">
+                <el-form-item label="用户名">
+                    <el-input v-model="search" placeholder="请输入用户名" clearable>
+                        <template #prefix>
+                            <el-icon class="el-input__icon"><search /></el-icon>
+                        </template>
+                    </el-input>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" style="margin-left: 1%" @click="load">查询</el-button>
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="danger" @click="clear">重置</el-button>
+                </el-form-item>
+            </el-form>
+        </div>
+
+        <el-table :data="tableData" stripe border>
+            <el-table-column prop="id" label="ID" sortable />
+            <el-table-column prop="username" label="用户名" />
+            <el-table-column prop="operation" label="操作" />
+            <el-table-column prop="method" label="方法" />
+            <el-table-column prop="ip" label="IP地址" />
+            <el-table-column prop="createDate" label="操作时间" />
+        </el-table>
+
+        <div style="margin: 10px 0">
+            <el-pagination
+                v-model:current-page="currentPage"
+                v-model:page-size="pageSize"
+                :page-sizes="[5, 10, 20]"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="total"
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+            />
+        </div>
     </div>
-    <el-table :data="tableData" stripe border="true">
-      <el-table-column prop="id" label="ID" sortable />
-      <el-table-column prop="username" label="用户名" />
-      <el-table-column prop="operation" label="操作" />
-      <el-table-column prop="method" label="方法" />
-      <el-table-column prop="ip" label="IP地址" />
-      <el-table-column prop="createTime" label="操作时间" />
-    </el-table>
-    <div style="margin: 10px 0">
-      <el-pagination
-          v-model:currentPage="currentPage"
-          :page-sizes="[5, 10, 20]"
-          :page-size="pageSize"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-      >
-      </el-pagination>
-    </div>
-  </div>
 </template>
 
-<script>
-import request from "../utils/request";
+<script setup>
+import { ref, onMounted } from 'vue';
+import request from '../utils/request';
+import { Search } from '@element-plus/icons-vue'; // 必须显式导入图标组件
 
-export default {
-  created(){
-    this.load()
-  },
-  name: 'SysLog',
-  methods: {
-    load(){
-      request.get("/sysLog",{
-        params:{
-          pageNum: this.currentPage,
-          pageSize: this.pageSize,
-          search: this.search,
-        }
-      }).then(res =>{
-        this.tableData = res.data.records
-        this.total = res.data.total
-      })
-    },
-    clear(){
-      this.search = ""
-      this.load()
-    },
-    handleSizeChange(pageSize){
-      this.pageSize = pageSize
-      this.load()
-    },
-    handleCurrentChange(pageNum){
-      this.currentPage = pageNum
-      this.load()
-    },
-  },
-  data() {
-    return {
-      search:'',
-      total:0,
-      currentPage:1,
-      pageSize: 10,
-      tableData: [],
-    }
-  },
-}
+// 声明响应式数据
+const search = ref('');
+const total = ref(0);
+const currentPage = ref(1);
+const pageSize = ref(10);
+const tableData = ref([]);
+
+// 定义方法
+const load = () => {
+    request
+        .get('/sysLog/page', {
+            params: {
+                pageNum: currentPage.value, // JS 中使用 ref 必须加 .value
+                pageSize: pageSize.value,
+                search: search.value,
+            },
+        })
+        .then((res) => {
+            // 确保你的拦截器返回的是 res.data
+            tableData.value = res.data.records;
+            total.value = res.data.total;
+        });
+};
+
+const clear = () => {
+    search.value = '';
+    load();
+};
+
+const handleSizeChange = (val) => {
+    pageSize.value = val;
+    load();
+};
+
+const handleCurrentChange = (val) => {
+    currentPage.value = val;
+    load();
+};
+
+// 替代原来的 created 钩子
+onMounted(() => {
+    load();
+});
 </script>

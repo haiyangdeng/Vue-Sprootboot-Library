@@ -4,6 +4,7 @@
 package com.library.controller;
 
 import com.library.common.Result;
+import com.library.common.annotation.Log;
 import com.library.dto.LoginDTO;
 import com.library.dto.PasswordDTO;
 import com.library.dto.UserDTO;
@@ -61,6 +62,7 @@ public class UserController {
      * 修改密码
      */
     @PutMapping("/updatePwd")
+    @Log("修改密码")
     public Result<?> updatePassword(@RequestBody @Validated PasswordDTO dto, HttpServletRequest request) {
         Long userId = (Long) request.getAttribute("userId");
         return userService.updatePassword(userId, dto);
@@ -77,8 +79,9 @@ public class UserController {
             @RequestParam(defaultValue = "1") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize,
             @RequestParam(required = false) String username,
+            @RequestParam(required = false) String nickname,
             @RequestParam(required = false) String phone) {
-        return userService.getUserPage(pageNum, pageSize, username, phone);
+        return userService.getUserPage(pageNum, pageSize, username, nickname, phone);
     }
 
     /**
@@ -86,6 +89,7 @@ public class UserController {
      */
     @PostMapping("/add")
     @PreAuthorize("hasRole('ADMIN')")
+    @Log("新增用户")
     public Result<?> addUser(@RequestBody @Validated UserDTO dto) {
         return userService.addUser(dto);
     }
@@ -95,6 +99,7 @@ public class UserController {
      */
     @PutMapping("/update")
     @PreAuthorize("hasRole('ADMIN')")
+    @Log("修改用户")
     public Result<?> updateUser(@RequestBody @Validated UserDTO dto) {
         return userService.updateUser(dto);
     }
@@ -104,6 +109,7 @@ public class UserController {
      */
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    @Log("删除用户")
     public Result<?> deleteUser(@PathVariable Long id) {
         return userService.deleteUser(id);
     }
@@ -113,6 +119,7 @@ public class UserController {
      */
     @PutMapping("/resetPwd/{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    @Log("重置密码")
     public Result<?> resetPassword(@PathVariable Long id) {
         return userService.resetPassword(id);
     }

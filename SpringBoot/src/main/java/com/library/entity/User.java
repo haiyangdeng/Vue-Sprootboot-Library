@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Data
 @TableName("sys_user")
@@ -15,6 +15,9 @@ public class User implements Serializable {
     private Long id;
 
     private String username;
+    private String nickname;
+
+    private Integer sex;
 
     @JsonIgnore
     private String password;
@@ -27,11 +30,13 @@ public class User implements Serializable {
 
     private String address;
 
+    // 关键点：指定在插入时填充
     @TableField(fill = FieldFill.INSERT)
-    private Date createTime;
+    private LocalDateTime createTime;
 
+    // 关键点：指定在插入和更新时都填充
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    private Date updateTime;
+    private LocalDateTime updateTime;
 
     private String remark;
 

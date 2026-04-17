@@ -3,6 +3,7 @@ package com.library.entity;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Data
@@ -14,12 +15,13 @@ public class Category implements Serializable {
     private Long id;
 
     private String name;
+    private String code;
 
     @TableField(fill = FieldFill.INSERT)
-    private Date createTime;
+    private LocalDateTime createTime; // 必须是 LocalDateTime
 
     @TableField(fill = FieldFill.INSERT_UPDATE)
-    private Date updateTime;
+    private LocalDateTime updateTime; // 必须是 LocalDateTime
 
     private String remark;
 

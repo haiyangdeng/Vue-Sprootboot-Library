@@ -5,9 +5,15 @@ import javax.validation.constraints.NotNull;
 
 @Data
 public class BorrowDTO {
-    @NotNull(message = "用户ID不能为空")
-    private Long userId;
-
     @NotNull(message = "图书ID不能为空")
     private Long bookId;
+    private String bookIsbn;
+    private String bookName;
+    private String userName;
+    private String status;
+
+    private Long userId;
+
+    private Integer pageNum = 1;
+    private Integer pageSize = 10;
 }

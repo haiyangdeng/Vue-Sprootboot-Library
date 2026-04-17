@@ -4,12 +4,10 @@
 
 ## 本地快捷预览项目
 
-第一步：运行 sql 文件夹下的`springboot-vue.sql`，创建`springboot-vue`数据库
-
-第二步：双击 run 文件夹下的`start.cmd`，弹出的dos窗口不要关闭
-
-第三步：浏览器访问`localhost:9090`，测试账号需要自己插入到数据库中
-
+第一步：新建数据库`springboot-vue`, 运行 sql 文件夹下的`Dump20260417.sql`,
+第二步：进入SpringBoot文件夹，安装maven依赖，在application.properties中配置数据库及密码，运行成功会运行在`后端地址: http://localhost:8088/api`
+第三步：进入vue文件夹，node24版本，执行`yarn`安装依赖，成功后执行`yarn dev`, `o + enter`,打开默认浏览器,可看到登录界面
+第四步：测试账号在sys_user表中，管理员账号:admin, 密码:123456
 
 
 ## 主要技术
@@ -30,18 +28,9 @@ SpringBoot、Mybatis-Plus、MySQL、Vue3、ElementPlus等
 
 ### 登录
 
-登录支持两种用户角色：管理员和读者
-
-输入正确的账号、密码后，系统会自动识别管理员或者用户，并跳转到相应主页。
-
-
-
-
-
 
 
 ### 展示板页面
-
 
 ### 管理员界面
 
@@ -49,29 +38,16 @@ SpringBoot、Mybatis-Plus、MySQL、Vue3、ElementPlus等
 
 - 图书表格列表
 
-
-
 - 添加图书
-
-
 
 - 编辑图书
 
- 
-
 - 删除图书
-
-
-
-   
-
 
 
 #### 读者管理
 
 - 读者管理的增删查改类似图书管理，不再赘述
-
-
 
   
 
@@ -80,15 +56,10 @@ SpringBoot、Mybatis-Plus、MySQL、Vue3、ElementPlus等
 - 借阅记录查询
 
 
-
 - 借阅记录编辑
 
 
-
   #### 借阅状态
-  
-
-
 
 
 ### 读者界面
