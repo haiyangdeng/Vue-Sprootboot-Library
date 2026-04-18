@@ -3,6 +3,7 @@ package com.library.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.library.dto.BorrowDTO;
+import com.library.dto.LendRecordDTO;
 import com.library.entity.Borrow;
 import com.library.vo.BorrowVO;
 import java.util.List;

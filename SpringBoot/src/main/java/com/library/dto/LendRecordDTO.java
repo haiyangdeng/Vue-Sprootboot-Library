@@ -5,9 +5,9 @@ import lombok.Data;
 @Data
 public class LendRecordDTO {
     private String isbn;
-    private String bookname;
-    private Long readerId;    // 对应前端 user.value.id
-    private Integer borrownum;
+    private String bookName;
+    private Long userId;
+    private Integer borrowNum;
     private String lendTime;
     private String status;
 }

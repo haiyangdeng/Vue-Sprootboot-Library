@@ -1,6 +1,7 @@
 package com.library.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -19,6 +20,10 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
 import java.util.List;
 
 @Service
@@ -32,21 +37,20 @@ public class BookServiceImpl extends ServiceImpl<BookMapper, Book> implements Bo
 
     @Override
     public Result<IPage<BookVO>> getBookPage(Integer pageNum, Integer pageSize, String name, String author, String isbn) {
-        // 1. 创建分页参数对象
         Page<Book> page = new Page<>(pageNum, pageSize);
+        QueryWrapper<Book> wrapper = new QueryWrapper<>();
 
-        // 2. 构建查询条件 (改用 QueryWrapper 以便手动指定表别名 'b')
-        // 注意：因为 Mapper SQL 中 sys_book 的别名是 b，所以这里字段要写成 "b.name"
-        com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<Book> wrapper = new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<>();
+        // 构建查询条件...
+        wrapper.like(StringUtils.hasText(name), "b.name", name);
+        // ... 其他条件
 
-        // 显式指定表别名 b. 解决歧义问题
-        wrapper.like(name != null, "b.name", name)
-                .like(author != null, "b.author", author)
-                .like(isbn != null, "b.isbn", isbn)
-                .orderByDesc("b.id");
+        // 【核心步骤】获取当前登录用户ID
+        // 假设你之前在 JwtAuthenticationFilter 中把 userId 存入了 request
+        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        Long currentUserId = (Long) attributes.getRequest().getAttribute("userId");
 
-        // 3. 执行自定义查询
-        IPage<BookVO> voPage = baseMapper.findBookVOPage(page, wrapper);
+        // 传入 currentUserId
+        IPage<BookVO> voPage = baseMapper.findBookVOPage(page, wrapper, currentUserId);
 
         return Result.success(voPage);
     }

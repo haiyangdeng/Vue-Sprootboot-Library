@@ -12,6 +12,7 @@ public class BookVO {
     private String name;
     private String author;
     private String publisher;
+    private Long recordId;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDateTime publishTime;
@@ -19,6 +20,7 @@ public class BookVO {
     private Integer stock;
     private Integer borrowNum;
 
+    private Long categoryId;
     private String categoryName; // 数据库存的是 categoryId，VO 直接给前端分类名称
     private String status;
     private String statusName;   // 租借状态：在库 / 借阅中

@@ -128,7 +128,7 @@
                 </el-form-item>
                 <el-form-item label="图书分类">
                     <el-select v-model="form.categoryId" placeholder="请选择" style="width: 240px" @change="handleCategoryId">
-                        <el-option v-for="item in categoryOptions" :key="item.code" :label="item.name" :value="item.code" />
+                        <el-option v-for="item in categoryOptions" :key="item.code" :label="item.name" :value="item.id" />
                     </el-select>
                 </el-form-item>
             </el-form>
@@ -186,9 +186,6 @@ const init = async () => {
     // 如果是普通用户，检查逾期情况
 
     await load();
-    if (userStore.userInfo.role == 'user') {
-        await checkUserBooks();
-    }
 };
 
 // 加载图书分类
@@ -224,6 +221,10 @@ const load = async () => {
             tableData.value = res.data.records;
             total.value = res.data.total;
         });
+
+    if (userStore.userInfo.role == 'user') {
+        await checkUserBooks();
+    }
 };
 
 const checkUserBooks = async () => {
@@ -239,7 +240,7 @@ const checkUserBooks = async () => {
             bookData.value = res.data.records;
             number.value = bookData.value.length;
             const nowDate = new Date();
-            isbnArray.value = bookData.value.map((book) => book.bookIsbn);
+            isbnArray.value = bookData.value.filter((book) => book.status == 'unreturned').map((book) => book.bookIsbn);
 
             outDateBook.value = bookData.value
                 .filter((book) => {
@@ -268,6 +269,8 @@ const clear = () => {
     load();
 };
 
+const handleCategoryId = () => {};
+
 // 操作逻辑
 const handleSelectionChange = (val) => {
     ids.value = val.map((v) => v.id);
@@ -289,7 +292,7 @@ const deleteBatch = () => {
 };
 
 const handleDelete = (id) => {
-    request.delete('book/' + id).then((res) => {
+    request.delete('/book/delete/' + id).then((res) => {
         if (res.code == 200) ElMessage.success('删除成功');
         else ElMessage.error(res.msg);
         load();
@@ -354,16 +357,12 @@ const handlelend = (row) => {
 };
 
 const handlereturn = (row) => {
-    // const returnForm = {
-    //     id: row.id,
-    //     status: '1',
-    //     stock: row.stock + 1,
-    // };
-
-    request.put(`/LendRecord/return//${row.id}`).then((res) => {
+    request.post(`/LendRecord/return/${row.recordId}`).then((res) => {
         if (res.code == 200) {
             ElMessage.success('还书成功');
             load(); // 刷新列表
+        } else {
+            this.$message.errror(res.msg);
         }
     });
 };

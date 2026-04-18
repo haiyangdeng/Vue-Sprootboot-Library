@@ -45,11 +45,23 @@ public interface BookMapper extends BaseMapper<Book> {
 
 
     @Select("SELECT b.*, c.name AS categoryName, " +
-            "IF(br.id IS NULL, 'available', 'unreturned') AS status, " +  // 这里直接计算 status
-            "IF(br.id IS NULL, '在库', '借阅中') AS statusName " +
+            // 1. 获取【当前登录人】的借阅记录 ID
+            "(SELECT br.id FROM sys_borrow br " +
+            " WHERE br.book_id = b.id AND br.status = 'unreturned' AND br.user_id = #{currentUserId} LIMIT 1) AS recordId, " +
+
+            // 2. 状态标识 (建议保持全局状态：只要有人借了就显示借阅中，还是仅针对当前人？)
+            // 如果 status 也要针对当前人，请同样加入 br.user_id = #{currentUserId}
+            "(SELECT IF(COUNT(*) > 0, 'unreturned', 'available') " +
+            " FROM sys_borrow br WHERE br.book_id = b.id AND br.status = 'unreturned' AND br.user_id = #{currentUserId}) AS status, " +
+
+            // 3. 状态文本
+            "(SELECT IF(COUNT(*) > 0, '借阅中', '在库') " +
+            " FROM sys_borrow br WHERE br.book_id = b.id AND br.status = 'unreturned' AND br.user_id = #{currentUserId}) AS statusName " +
+
             "FROM sys_book b " +
             "LEFT JOIN sys_category c ON b.category_id = c.id " +
-            "LEFT JOIN sys_borrow br ON b.id = br.book_id AND br.status = 'unreturned' " +
             "${ew.customSqlSegment}")
-    IPage<BookVO> findBookVOPage(Page<Book> page, @Param(Constants.WRAPPER) Wrapper<Book> wrapper);
+    IPage<BookVO> findBookVOPage(Page<Book> page,
+                                 @Param(Constants.WRAPPER) Wrapper<Book> wrapper,
+                                 @Param("currentUserId") Long currentUserId);
 }

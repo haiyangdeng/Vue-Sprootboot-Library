@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.library.common.Result;
 import com.library.common.annotation.Log;
 import com.library.dto.BorrowDTO;
+import com.library.dto.LendRecordDTO;
 import com.library.service.BorrowService;
 import com.library.vo.BorrowVO;
 import org.springframework.beans.factory.annotation.Autowired;
