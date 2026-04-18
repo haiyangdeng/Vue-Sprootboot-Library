@@ -4,7 +4,7 @@
 
 ## 本地快捷预览项目
 
-第一步：新建数据库`springboot-vue`, 运行 sql 文件夹下的`Dump20260417.sql`
+第一步：新建数据库`springboot-vue`, 运行 sql 文件夹下的`Dump20260418.sql`
 
 第二步：进入SpringBoot文件夹，安装maven依赖，在application.properties中配置数据库及密码，运行成功会运行在`后端地址: http://localhost:8088/api`
 
