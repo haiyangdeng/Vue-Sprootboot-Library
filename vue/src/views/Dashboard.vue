@@ -1,53 +1,55 @@
 <template>
     <div class="container">
-        <el-row :gutter="20">
-            <el-col :span="6" v-for="item in cards" :key="item.title">
-                <el-card class="box-card">
-                    <template #header>
-                        <div class="clearfix">{{ item.title }}</div>
-                    </template>
-                    <div class="text item">
-                        <svg class="icon" aria-hidden="true">
-                            <use :xlink:href="item.icon" style="width: 100px"></use>
-                        </svg>
-                        <span class="text">{{ item.data }}</span>
-                    </div>
-                </el-card>
-            </el-col>
-        </el-row>
-
-        <div id="myTimer" style="margin-left: 15px; font-weight: 550">{{ currentTime }}</div>
-
-        <el-row :gutter="20" style="margin-top: 20px">
-            <el-col :span="12">
-                <el-card class="box-card">
-                    <template #header>
-                        <div class="clearfix">
-                            <span>热门借阅图书 TOP10</span>
+        <div>
+            <el-row :gutter="20">
+                <el-col :span="8" v-for="item in cards" :key="item.title">
+                    <el-card class="box-card">
+                        <template #header>
+                            <div class="clearfix">{{ item.title }}</div>
+                        </template>
+                        <div class="text item">
+                            <svg class="icon" aria-hidden="true">
+                                <use :xlink:href="item.icon" style="width: 100px"></use>
+                            </svg>
+                            <span class="text">{{ item.data }}</span>
                         </div>
-                    </template>
-                    <el-table :data="topBooks" style="width: 100%">
-                        <el-table-column prop="name" label="书名" />
-                        <el-table-column prop="author" label="作者" />
-                        <el-table-column prop="borrownum" label="借阅次数" />
-                    </el-table>
-                </el-card>
-            </el-col>
-            <el-col :span="12">
-                <el-card class="box-card">
-                    <template #header>
-                        <div class="clearfix">
-                            <span>用户借阅次数 TOP10</span>
-                        </div>
-                    </template>
-                    <el-table :data="topUsers" style="width: 100%">
-                        <el-table-column prop="name" label="用户名" />
-                        <el-table-column prop="value" label="借阅次数" />
-                    </el-table>
-                </el-card>
-            </el-col>
-        </el-row>
-        <div ref="chartRef" id="main" style="margin-left: 5px; margin-top: 20px"></div>
+                    </el-card>
+                </el-col>
+            </el-row>
+
+            <div id="myTimer" style="margin-left: 15px; font-weight: 550">{{ currentTime }}</div>
+
+            <el-row :gutter="20" style="margin-top: 20px">
+                <el-col :span="12">
+                    <el-card class="box-card">
+                        <template #header>
+                            <div class="clearfix">
+                                <span>热门借阅图书 TOP5</span>
+                            </div>
+                        </template>
+                        <el-table :data="topBooks" style="width: 100%">
+                            <el-table-column prop="name" label="书名" />
+                            <el-table-column prop="author" label="作者" />
+                            <el-table-column prop="borrowNum" label="借阅次数" />
+                        </el-table>
+                    </el-card>
+                </el-col>
+                <el-col :span="12">
+                    <el-card class="box-card">
+                        <template #header>
+                            <div class="clearfix">
+                                <span>用户借阅次数 TOP5</span>
+                            </div>
+                        </template>
+                        <el-table :data="topUsers" style="width: 100%">
+                            <el-table-column prop="name" label="用户名" />
+                            <el-table-column prop="value" label="借阅次数" />
+                        </el-table>
+                    </el-card>
+                </el-col>
+            </el-row>
+            <div ref="chartRef" id="main" style="margin-left: 5px; margin-top: 20px"></div>
+        </div>
     </div>
 </template>
 
@@ -95,13 +97,13 @@ const loadDashboard = () => {
 };
 
 const loadTopBooks = () => {
-    request.get('/dashboard/topBooks?limit=10').then((res) => {
+    request.get('/dashboard/topBooks?limit=5').then((res) => {
         if (res.code == 200 || res.code == 0) topBooks.value = res.data;
     });
 };
 
 const loadTopUsers = () => {
-    request.get('/dashboard/topUsers?limit=10').then((res) => {
+    request.get('/dashboard/topUsers?limit=5').then((res) => {
         if (res.code == 200 || res.code == 0) topUsers.value = res.data;
     });
 };
@@ -194,5 +196,9 @@ onUnmounted(() => {
     height: 50px;
     padding-top: 5px;
     padding-right: 10px;
+}
+
+.el-card {
+    width: 100%;
 }
 </style>

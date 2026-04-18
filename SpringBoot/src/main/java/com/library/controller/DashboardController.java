@@ -1,9 +1,11 @@
 package com.library.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.library.common.Result;
 import com.library.service.BookService;
 import com.library.service.BorrowService;
 import com.library.service.UserService;
+import com.library.vo.BookHotVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,16 +41,16 @@ public class DashboardController {
 
     /** 2. 热门图书排行 (/api/dashboard/topBooks) */
     @GetMapping("/topBooks")
-    public Result<?> getTopBooks() {
-        // 调用你 Mapper 里定义的逻辑，取前10名
-        return Result.success(borrowService.getHotBooks(10));
+    public Result<List<BookHotVO>> getTopBooks(@RequestParam(defaultValue = "10") Integer limit) {
+        // 接收前端传来的 limit 参数，默认值为 10
+        return Result.success(borrowService.getHotBooks(limit));
     }
 
     /** 3. 借阅达人排行 (/api/dashboard/topUsers) */
     @GetMapping("/topUsers")
-    public Result<?> getTopUsers() {
-        // 调用你 Mapper 里定义的逻辑，取前10名
-        return Result.success(borrowService.getTopBorrowUsers(10));
+    public Result<?> getTopUsers(@RequestParam(defaultValue = "10") Integer limit) {
+        // 接收前端传来的 limit 参数，默认值为 10
+        return Result.success(borrowService.getTopBorrowUsers(limit));
     }
 
     private Map<String, Object> getStatisticsData() {

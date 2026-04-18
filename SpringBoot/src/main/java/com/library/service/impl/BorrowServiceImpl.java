@@ -13,6 +13,7 @@ import com.library.mapper.BookMapper;
 import com.library.mapper.BorrowMapper;
 import com.library.service.BookService;
 import com.library.service.BorrowService;
+import com.library.vo.BookHotVO;
 import com.library.vo.BorrowVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -157,8 +158,8 @@ public class BorrowServiceImpl extends ServiceImpl<BorrowMapper, Borrow> impleme
     }
 
     @Override
-    public List<Map<String, Object>> getHotBooks(Integer topNum) {
-        return baseMapper.selectHotBooks(topNum);
+    public  List<BookHotVO> getHotBooks(Integer topNum) {
+        return bookMapper.selectHotBooks(topNum);
     }
 
     @Override

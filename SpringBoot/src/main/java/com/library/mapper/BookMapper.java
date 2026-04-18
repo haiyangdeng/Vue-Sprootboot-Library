@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.library.entity.Book;
+import com.library.vo.BookHotVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -35,12 +36,17 @@ public interface BookMapper extends BaseMapper<Book> {
                                @Param("categoryId") Long categoryId);
 
 
-    @Select("SELECT b.name as name, COUNT(br.id) as value " +
+    @Select("SELECT " +
+            "  b.name as name, " +
+            "  b.author as author, " +
+            "  b.borrow_num as borrowNum, " +  // 获取 sys_book 表中的原始借阅数字
+            "  COUNT(br.id) as value " +       // 获取 sys_borrow 表中的实时借阅统计（热度）
             "FROM sys_borrow br " +
             "JOIN sys_book b ON br.book_id = b.id " +
-            "GROUP BY br.book_id, b.name " + // 核心修改：将 b.name 加入分组
-            "ORDER BY value DESC LIMIT #{topNum}")
-    List<Map<String, Object>> selectHotBooks(@Param("topNum") Integer topNum);
+            "GROUP BY br.book_id, b.name, b.author, b.borrow_num " + // 必须包含所有非聚合字段
+            "ORDER BY value DESC " +          // 依然按实时热度（借阅记录数）排序
+            "LIMIT #{topNum}")
+    List<BookHotVO> selectHotBooks(@Param("topNum") Integer topNum);
 
 
 

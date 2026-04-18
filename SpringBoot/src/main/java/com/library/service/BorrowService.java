@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.library.dto.BorrowDTO;
 import com.library.dto.LendRecordDTO;
 import com.library.entity.Borrow;
+import com.library.vo.BookHotVO;
 import com.library.vo.BorrowVO;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +35,7 @@ public interface BorrowService extends IService<Borrow> {
     List<Map<String, Object>> getBorrowStats(String timeType, String startTime, String endTime);
 
     /** 热门图书排行 */
-    List<Map<String, Object>> getHotBooks(Integer topNum);
+    List<BookHotVO> getHotBooks(Integer topNum);
 
     /** 活跃用户排行 */
     List<Map<String, Object>> getTopBorrowUsers(Integer topNum);
